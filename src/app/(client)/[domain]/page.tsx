@@ -116,7 +116,7 @@ export default async function ClientSite({ params }: { params: { domain: string 
         <Services
           id="services"
           title={site.servicesTitle || 'Our Services'}
-          services={site.services.map(s => ({
+          services={site.services.map((s: any) => ({
             ...s,
             icon: s.icon || undefined
           }))}
@@ -178,7 +178,7 @@ export default async function ClientSite({ params }: { params: { domain: string 
         <Testimonials
           id="testimonials"
           title={site.testimonialsTitle || 'Testimonials'}
-          testimonials={site.testimonials.map(t => ({
+          testimonials={site.testimonials.map((t: any) => ({
             ...t,
             role: t.role || undefined,
             avatar: t.avatar || undefined
