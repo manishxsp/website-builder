@@ -3,7 +3,7 @@
 interface Tag {
     id: string;
     name: string;
-    link?: string;
+    link?: string | null;
     order: number;
 }
 

@@ -2,7 +2,7 @@ interface Service {
   id: string;
   title: string;
   description: string;
-  icon?: string;
+  icon?: string | null;
 }
 
 interface ServicesProps {

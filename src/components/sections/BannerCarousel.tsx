@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 
 interface Banner {
     id: string;
-    title?: string;
-    subtitle?: string;
+    title?: string | null;
+    subtitle?: string | null;
     image: string;
-    ctaText?: string;
-    ctaLink?: string;
+    ctaText?: string | null;
+    ctaLink?: string | null;
     order: number;
 }
 
@@ -135,8 +135,8 @@ export default function BannerCarousel({ banners, brandColor }: BannerCarouselPr
                             key={index}
                             onClick={() => goToSlide(index)}
                             className={`w-3 h-3 rounded-full transition-all ${index === currentIndex
-                                    ? 'w-8'
-                                    : 'bg-white/50 hover:bg-white/75'
+                                ? 'w-8'
+                                : 'bg-white/50 hover:bg-white/75'
                                 }`}
                             style={index === currentIndex ? { backgroundColor: brandColor } : {}}
                             aria-label={`Go to slide ${index + 1}`}
