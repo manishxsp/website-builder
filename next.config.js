@@ -1,6 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // App directory is now stable in Next.js 14
-}
+  // Suppress the 'url' module warning if it's coming from a third-party package
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        url: false,
+      };
+    }
+    return config;
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

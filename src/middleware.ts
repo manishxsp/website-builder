@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
+     * Match all paths except:
+     * 1. /api (API routes)
+     * 2. /_next (Next.js internals)
+     * 3. /_static (Inside /public)
+     * 4. all root files inside /public (e.g. /favicon.ico)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+).*)',
   ],
 };
 
@@ -17,34 +17,31 @@ export default function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const hostname = req.headers.get('host') || '';
 
-  // Define your main app domain (local and production)
+  // Define your production and local domains
   const rootDomain = process.env.NODE_ENV === 'production'
-    ? 'yourplatform.com'
+    ? process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'your-saas-platform.vercel.app'
     : 'localhost:3000';
 
-  const searchParams = url.searchParams.toString();
-  const path = `${url.pathname}${searchParams.length > 0 ? `?${searchParams}` : ''}`;
+  const path = url.pathname;
+
+  // 1. Handle the main dashboard and landing page
+  if (hostname === rootDomain || hostname === 'localhost:3000') {
+    return NextResponse.next();
+  }
+
+  // 2. Extract the subdomain (e.g., 'skoda-india')
+  const currentHost = hostname.replace(`.${rootDomain}`, '');
 
   console.log('Middleware Debug:', {
     hostname,
     rootDomain,
-    path,
-    env: process.env.NODE_ENV
-  });
-
-  // 1. If it's the root domain (your marketing site/admin)
-  if (hostname === rootDomain) {
-    return NextResponse.next();
-  }
-
-  // 2. Extract subdomain or custom domain
-  const currentHost = hostname.replace(`.${rootDomain}`, '');
-
-  console.log('Middleware Rewrite:', {
     currentHost,
-    target: `/${currentHost}${path}`
+    path,
+    rewriteTo: `/(client)/${currentHost}${path}`
   });
 
-  // 3. Internal Rewrite to the [domain] dynamic route
+  // 3. Rewrite to the dynamic [domain] route
+  // We rewrite to /${currentHost}${path} which matches [domain]/page.tsx
+  // The (client) route group is transparent
   return NextResponse.rewrite(new URL(`/${currentHost}${path}`, req.url));
 }

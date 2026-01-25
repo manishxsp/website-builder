@@ -1,10 +1,10 @@
 interface Location {
     id: string;
     name: string;
-    city?: string;
-    state?: string;
-    address?: string;
-    mapLink?: string;
+    city?: string | null;
+    state?: string | null;
+    address?: string | null;
+    mapLink?: string | null;
     order: number;
 }
 

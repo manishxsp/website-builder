@@ -13,6 +13,8 @@ I updated the interfaces in the following components to explicitly accept `null`
 1.  **BannerCarousel.tsx**: Updated `Banner` interface.
 2.  **Services.tsx**: Updated `Service` interface.
 3.  **Tags.tsx**: Updated `Tag` interface.
+4.  **FeaturedProducts.tsx**: Updated `Product` interface.
+5.  **Locations.tsx**: Updated `Location` interface.
 
 ## 🚀 Verify It
 Run `npm run build` again. It should pass now!

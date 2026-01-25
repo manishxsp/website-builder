@@ -15,6 +15,7 @@ import Locations from '@/components/sections/Locations';
 import Footer from '@/components/sections/Footer';
 
 async function getSiteData(domain: string) {
+  console.log('getSiteData called with:', domain);
   const site = await prisma.site.findFirst({
     where: {
       OR: [
@@ -51,13 +52,13 @@ async function getSiteData(domain: string) {
       }
     }
   });
-
+  console.log('getSiteData result:', site ? 'Found' : 'Not Found');
   return site;
 }
 
 export default async function ClientSite({ params }: { params: { domain: string } }) {
   console.log('ClientSite Page:', { domain: params.domain });
-  const site = await getSiteData(params.domain);
+  const site = await getSiteData(params.domain) as any;
 
   if (!site) return notFound();
 

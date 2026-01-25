@@ -1,11 +1,11 @@
 interface Product {
     id: string;
     name: string;
-    description?: string;
-    image?: string;
-    price?: string;
+    description?: string | null;
+    image?: string | null;
+    price?: string | null;
     ctaText: string;
-    ctaLink?: string;
+    ctaLink?: string | null;
     features: string[];
     order: number;
 }
