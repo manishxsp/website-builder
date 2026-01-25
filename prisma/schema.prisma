@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Site {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  subdomain    String?  @unique
+  customDomain String?  @unique
+  logo         String?
+  favicon      String?
+  
+  // Theme Settings
+  brandColor   String   @default("#3b82f6")
+  fontFamily   String   @default("Inter")
+  
+  // Hero Section / Carousel Banners
+  heroTitle    String?
+  heroSubtitle String?
+  heroImage    String?
+  heroCTA      String?  @default("Get Started")
+  heroCTALink  String?
+  banners      Banner[] // Multiple carousel banners
+  
+  // About Section
+  aboutTitle   String?  @default("About Us")
+  aboutContent String?
+  aboutImage   String?
+  
+  // Services Section
+  servicesTitle String? @default("Our Services")
+  services      Service[]
+  
+  // Featured Products Section
+  productsTitle       String?  @default("Featured Products")
+  showProducts        Boolean  @default(false)
+  products            Product[]
+  
+  // Gallery
+  galleryTitle  String? @default("Gallery")
+  galleryImages String[] // Array of image URLs
+  
+  // Testimonials
+  testimonialsTitle String? @default("What Our Clients Say")
+  testimonials      Testimonial[]
+  
+  // Business Hours
+  showBusinessHours Boolean       @default(false)
+  businessHours     BusinessHour[]
+  
+  // Contact Section
+  contactTitle   String? @default("Get In Touch")
+  contactEmail   String?
+  contactPhone   String?
+  contactAddress String?
+  
+  // Location/Stores
+  showLocations Boolean   @default(false)
+  locations     Location[]
+  
+  // Parking & Payment Info
+  parkingInfo    String?
+  paymentMethods String[] // Array of payment methods
+  
+  // Categories & Tags
+  categories String[] // Array of category names
+  tags       Tag[]
+  
+  // Social Media (Footer)
+  facebookUrl  String?
+  instagramUrl String?
+  twitterUrl   String?
+  linkedinUrl  String?
+  youtubeUrl   String?
+  whatsappUrl  String?
+  
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  
+  // Visibility Toggles
+  showHero         Boolean @default(true)
+  showBanners      Boolean @default(false)
+  showAbout        Boolean @default(true)
+  showServices     Boolean @default(true)
+  showGallery      Boolean @default(false)
+  showTestimonials Boolean @default(false)
+  showContact      Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  navLinks NavLink[]
+}
+
+model Banner {
+  id          String  @id @default(cuid())
+  title       String?
+  subtitle    String?
+  image       String  // Banner image URL
+  ctaText     String?
+  ctaLink     String?
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+  site        Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId      String
+  
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  image       String?
+  price       String? // Display price (e.g., "Starting at ₹11,99,000")
+  ctaText     String  @default("View Details")
+  ctaLink     String?
+  features    String[] // Array of feature strings
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+  site        Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId      String
+  
+  createdAt DateTime @default(now())
+}
+
+model BusinessHour {
+  id        String @id @default(cuid())
+  day       String // "Monday", "Tuesday", etc.
+  openTime  String // "10:00 AM"
+  closeTime String // "08:00 PM"
+  isClosed  Boolean @default(false)
+  order     Int    @default(0)
+  site      Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId    String
+  
+  createdAt DateTime @default(now())
+}
+
+model Location {
+  id          String  @id @default(cuid())
+  name        String  // "Samsung SmartPlaza in Haryana"
+  city        String?
+  state       String?
+  address     String?
+  mapLink     String?
+  order       Int     @default(0)
+  site        Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId      String
+  
+  createdAt DateTime @default(now())
+}
+
+model Tag {
+  id     String @id @default(cuid())
+  name   String // "Galaxy S25", "Galaxy S25 Ultra", etc.
+  link   String? // Optional link for the tag
+  order  Int    @default(0)
+  site   Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId String
+  
+  createdAt DateTime @default(now())
+}
+
+model Service {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  icon        String? // Icon name or emoji
+  site        Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId      String
+  order       Int    @default(0)
+  
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id      String  @id @default(cuid())
+  name    String
+  role    String?
+  content String
+  avatar  String?
+  rating  Int     @default(5)
+  site    Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId  String
+  order   Int     @default(0)
+  
+  createdAt DateTime @default(now())
+}
+
+model NavLink {
+  id         String  @id @default(cuid())
+  label      String
+  href       String
+  order      Int     @default(0)
+  isExternal Boolean @default(false)
+  site       Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId     String
+  
+  createdAt DateTime @default(now())
+}
