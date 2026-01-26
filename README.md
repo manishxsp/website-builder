@@ -394,6 +394,47 @@ npm run db:seed
 - Analytics dashboard
 - Multi-user support
 
+---
+
+## 📚 Comprehensive Documentation
+
+This project includes extensive documentation for different audiences:
+
+### For Business & Commercialization
+- **[COMMERCIALIZATION_GUIDE.md](./COMMERCIALIZATION_GUIDE.md)** - Complete guide to selling websites
+  - Business models & pricing strategies
+  - Customer acquisition & retention
+  - Real-world challenges & solutions
+  - Scalability planning
+  - Revenue projections
+
+### For Developers & Technical Teams
+- **[TECH_STACK.md](./TECH_STACK.md)** - Complete technical architecture
+  - Technology stack breakdown
+  - System architecture diagrams
+  - Database schema details
+  - Performance optimizations
+  - Deployment strategies
+
+### For AI Assistants & Code Analysis
+- **[AI_PROJECT_OVERVIEW.md](./AI_PROJECT_OVERVIEW.md)** - AI-readable project context
+  - Core concepts explained
+  - Detailed data flow
+  - Key algorithms
+  - Business logic
+  - Complete glossary
+
+### For SEO & Marketing
+- **[SEO_FEATURES_ANALYSIS.md](./SEO_FEATURES_ANALYSIS.md)** - SEO implementation analysis
+- **[SEO_IMPLEMENTATION_SUMMARY.md](./SEO_IMPLEMENTATION_SUMMARY.md)** - SEO features summary
+- **[SEO_QUICK_REFERENCE.md](./SEO_QUICK_REFERENCE.md)** - Quick SEO reference
+
+### Quick References
+- **[QUICK_REFERENCE.md](./QUICK_REFERENCE.md)** - Component usage & examples
+- **[ADMIN_INTERFACE_GUIDE.md](./ADMIN_INTERFACE_GUIDE.md)** - Admin panel guide
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository
