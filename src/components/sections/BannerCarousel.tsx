@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 
 interface Banner {
     id: string;
-    title?: string | null;
-    subtitle?: string | null;
+    title: string | null;
+    subtitle: string | null;
     image: string;
-    ctaText?: string | null;
-    ctaLink?: string | null;
+    ctaText: string | null;
+    ctaLink: string | null;
     order: number;
 }
 
