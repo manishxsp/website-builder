@@ -1,33 +1,15 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    // Fetch all sites
-    // Note: In a real production app with thousands of sites, you'd want to paginate this
-    // or generate separate sitemaps.
-    const sites = await prisma.site.findMany({
-        select: {
-            subdomain: true,
-            customDomain: true,
-            updatedAt: true,
-        },
-    });
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Revalidate every hour
 
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'localhost:3000';
     const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
 
-    const siteUrls = sites.map((site) => {
-        const domain = site.customDomain || `${site.subdomain}.${baseUrl}`;
-
-        return {
-            url: `${protocol}://${domain}`,
-            lastModified: site.updatedAt,
-            changeFrequency: 'weekly' as const,
-            priority: 1,
-        };
-    });
-
-    // Add main platform pages
+    // Platform routes (always available)
     const platformRoutes = [
         '',
         '/login',
@@ -39,5 +21,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
     }));
 
-    return [...platformRoutes, ...siteUrls];
+    try {
+        // Fetch all sites
+        // Note: In a real production app with thousands of sites, you'd want to paginate this
+        // or generate separate sitemaps.
+        const sites = await prisma.site.findMany({
+            select: {
+                subdomain: true,
+                customDomain: true,
+                updatedAt: true,
+            },
+        });
+
+        const siteUrls = sites.map((site) => {
+            const domain = site.customDomain || `${site.subdomain}.${baseUrl}`;
+
+            return {
+                url: `${protocol}://${domain}`,
+                lastModified: site.updatedAt,
+                changeFrequency: 'weekly' as const,
+                priority: 1,
+            };
+        });
+
+        return [...platformRoutes, ...siteUrls];
+    } catch (error) {
+        // If database is not available (e.g., during build), return only platform routes
+        console.warn('Database not available for sitemap generation:', error);
+        return platformRoutes;
+    }
 }

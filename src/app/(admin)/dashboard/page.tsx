@@ -1,6 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 
+// Force dynamic rendering (no static generation during build)
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
     const sitesCount = await prisma.site.count();
     const recentSites = await prisma.site.findMany({
