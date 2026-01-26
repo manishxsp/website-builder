@@ -13,7 +13,8 @@ export default async function EditSitePage({ params }: { params: { id: string } 
             locations: { orderBy: { order: 'asc' } },
             tags: { orderBy: { order: 'asc' } },
             testimonials: { orderBy: { order: 'asc' } },
-            navLinks: { orderBy: { order: 'asc' } }
+            navLinks: { orderBy: { order: 'asc' } },
+            faqs: { orderBy: { order: 'asc' } }
         } as any // Bypass TS check for now until types sync
     });
 

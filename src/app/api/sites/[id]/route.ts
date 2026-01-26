@@ -17,7 +17,8 @@ export async function GET(
         businessHours: { orderBy: { order: 'asc' } },
         locations: { orderBy: { order: 'asc' } },
         tags: { orderBy: { order: 'asc' } },
-        navLinks: { orderBy: { order: 'asc' } }
+        navLinks: { orderBy: { order: 'asc' } },
+        faqs: { orderBy: { order: 'asc' } }
       }
     });
 
@@ -49,6 +50,7 @@ export async function PATCH(
       locations,
       tags,
       navLinks,
+      faqs,
       ...siteData
     } = body;
 
@@ -65,6 +67,7 @@ export async function PATCH(
     if (locations) updateData.locations = { deleteMany: {}, create: locations.map((item: any) => ({ ...item, id: undefined, siteId: undefined })) };
     if (tags) updateData.tags = { deleteMany: {}, create: tags.map((item: any) => ({ ...item, id: undefined, siteId: undefined })) };
     if (navLinks) updateData.navLinks = { deleteMany: {}, create: navLinks.map((item: any) => ({ ...item, id: undefined, siteId: undefined })) };
+    if (faqs) updateData.faqs = { deleteMany: {}, create: faqs.map((item: any) => ({ ...item, id: undefined, siteId: undefined })) };
 
     const site = await prisma.site.update({
       where: { id: params.id },

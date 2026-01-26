@@ -13,6 +13,9 @@ import BusinessHours from '@/components/sections/BusinessHours';
 import Tags from '@/components/sections/Tags';
 import Locations from '@/components/sections/Locations';
 import Footer from '@/components/sections/Footer';
+import FAQ from '@/components/sections/FAQ';
+import JsonLd from '@/components/seo/JsonLd';
+import Analytics from '@/components/seo/Analytics';
 
 async function getSiteData(domain: string) {
   console.log('getSiteData called with:', domain);
@@ -49,6 +52,10 @@ async function getSiteData(domain: string) {
       },
       tags: {
         orderBy: { order: 'asc' }
+      },
+      faqs: {
+        where: { isActive: true },
+        orderBy: { order: 'asc' }
       }
     }
   });
@@ -70,6 +77,12 @@ export default async function ClientSite({ params }: { params: { domain: string 
         '--brand-color': site.brandColor
       } as any}
     >
+      <JsonLd site={site} url={`https://${params.domain}`} />
+      <Analytics
+        googleAnalyticsId={site.googleAnalyticsId}
+        googleTagManagerId={site.googleTagManagerId}
+        facebookPixelId={site.facebookPixelId}
+      />
       {/* Navbar */}
       {site.navLinks.length > 0 && (
         <Navbar
@@ -187,6 +200,16 @@ export default async function ClientSite({ params }: { params: { domain: string 
         />
       )}
 
+      {/* FAQ Section */}
+      {site.showFAQ && site.faqs.length > 0 && (
+        <FAQ
+          id="faq"
+          title="Frequently Asked Questions"
+          faqs={site.faqs}
+          brandColor={site.brandColor}
+        />
+      )}
+
       {/* Contact Section */}
       {site.showContact && (
         <Contact
@@ -196,6 +219,7 @@ export default async function ClientSite({ params }: { params: { domain: string 
           phone={site.contactPhone || undefined}
           address={site.contactAddress || undefined}
           brandColor={site.brandColor}
+          siteId={site.id}
         />
       )}
 
@@ -225,8 +249,55 @@ export async function generateMetadata({ params }: { params: { domain: string } 
 
   if (!site) return {};
 
+  // Combine keywords for meta tags
+  const keywords = [
+    ...(site.primaryKeywords || []),
+    ...(site.secondaryKeywords || []),
+  ].join(', ');
+
   return {
     title: site.metaTitle || site.name,
     description: site.metaDescription || site.description,
+    keywords: keywords || undefined,
+    authors: [{ name: site.name }],
+    creator: site.name,
+    publisher: site.name,
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    openGraph: {
+      title: site.metaTitle || site.name,
+      description: site.metaDescription || site.description,
+      images: [site.heroImage || site.logo || ''],
+      type: 'website',
+      siteName: site.name,
+      locale: 'en_US',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: site.metaTitle || site.name,
+      description: site.metaDescription || site.description,
+      images: [site.heroImage || site.logo || ''],
+    },
+    alternates: {
+      canonical: `https://${params.domain}`,
+    },
+    verification: {
+      google: site.googleSiteVerification || undefined,
+      other: {
+        'msvalidate.01': site.bingWebmasterVerification || undefined,
+      },
+    },
+    other: {
+      'business-type': site.businessType,
+    },
   };
 }

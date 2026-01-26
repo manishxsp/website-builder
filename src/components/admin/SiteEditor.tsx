@@ -49,6 +49,7 @@ export default function SiteEditor({ site }: SiteEditorProps) {
         tags: site.tags || [],
         banners: site.banners || [],
         locations: site.locations || [],
+        faqs: site.faqs || [],
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -84,6 +85,7 @@ export default function SiteEditor({ site }: SiteEditorProps) {
 
     const tabs = [
         { id: 'basic', label: 'Basic Info', icon: '📝' },
+        { id: 'faqs', label: 'FAQs', icon: '❓' },
         // Tabs are now just for scrolling or could be removed if we want a single page feel
         // For now, let's keep them but maybe we can simplify
     ];
@@ -125,6 +127,12 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                             </p>
                         </div>
                         <div className="flex gap-3">
+                            <a
+                                href={`/sites/${site.id}/leads`}
+                                className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg font-medium transition-colors"
+                            >
+                                View Leads
+                            </a>
                             <a
                                 href={`http://${site.subdomain}.localhost:3000`}
                                 target="_blank"
@@ -779,6 +787,94 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                             </div>
                             <div className="text-gray-500">
                                 Tags will be listed here. Click "Add Tag" to create your first tag.
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'faqs' && (
+                        <div>
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h2 className="text-xl font-bold">Frequently Asked Questions</h2>
+                                    <p className="text-gray-600 mt-1">
+                                        Manage Q&A for your site
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => addListItem('faqs', { question: '', answer: '', order: formData.faqs.length + 1, isActive: true })}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    + Add FAQ
+                                </button>
+                            </div>
+                            <div className="space-y-4">
+                                {formData.faqs.map((faq: any, index: number) => (
+                                    <div key={index} className="bg-white p-4 rounded border border-gray-200 relative">
+                                        <button
+                                            type="button"
+                                            onClick={() => removeListItem('faqs', index)}
+                                            className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+                                        >
+                                            ✕
+                                        </button>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Question</label>
+                                                <input
+                                                    type="text"
+                                                    value={faq.question}
+                                                    onChange={(e) => updateList('faqs', index, 'question', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded"
+                                                    placeholder="e.g. What are your opening hours?"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-500 mb-1">Answer</label>
+                                                <textarea
+                                                    value={faq.answer}
+                                                    onChange={(e) => updateList('faqs', index, 'answer', e.target.value)}
+                                                    rows={3}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded"
+                                                    placeholder="e.g. We are open 9am to 5pm daily."
+                                                />
+                                            </div>
+                                            <div className="flex items-center gap-4">
+                                                <label className="flex items-center gap-2 text-sm text-gray-600">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={faq.isActive}
+                                                        onChange={(e) => updateList('faqs', index, 'isActive', e.target.checked)}
+                                                        className="rounded border-gray-300"
+                                                    />
+                                                    Active
+                                                </label>
+                                                <div className="flex items-center gap-2">
+                                                    <label className="text-xs font-medium text-gray-500">Order:</label>
+                                                    <input
+                                                        type="number"
+                                                        value={faq.order}
+                                                        onChange={(e) => updateList('faqs', index, 'order', parseInt(e.target.value))}
+                                                        className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                {formData.faqs.length === 0 && (
+                                    <p className="text-gray-500 text-sm italic text-center py-4">No FAQs added yet.</p>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end pt-6 border-t mt-6">
+                                <button
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                    className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                >
+                                    {saving ? 'Saving Changes...' : 'Save All Changes'}
+                                </button>
                             </div>
                         </div>
                     )}

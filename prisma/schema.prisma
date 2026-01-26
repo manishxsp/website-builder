@@ -84,6 +84,26 @@ model Site {
   metaTitle       String?
   metaDescription String?
   
+  // SEO Enhancements
+  businessType        String   @default("LocalBusiness") // "LocalBusiness", "Bakery", "AutoDealer", "Restaurant"
+  industryCategory    String?  // Specific industry categorization
+  primaryKeywords     String[] // ["bakery near me", "custom wedding cakes"]
+  secondaryKeywords   String[] // ["gluten-free bakery", "birthday cake delivery"]
+  localModifiers      String[] // ["San Francisco", "Austin", "Downtown"]
+  
+  // Aggregate Rating (auto-calculated from testimonials)
+  aggregateRating     Float?   // Average rating
+  totalReviews        Int      @default(0)
+  
+  // Analytics Integration
+  googleAnalyticsId   String?  // GA4 Measurement ID
+  googleTagManagerId  String?  // GTM Container ID
+  facebookPixelId     String?  // Facebook Pixel ID
+  
+  // Search Console Verification
+  googleSiteVerification String?
+  bingWebmasterVerification String?
+  
   // Visibility Toggles
   showHero         Boolean @default(true)
   showBanners      Boolean @default(false)
@@ -92,12 +112,28 @@ model Site {
   showGallery      Boolean @default(false)
   showTestimonials Boolean @default(false)
   showContact      Boolean @default(true)
+  showFAQ          Boolean @default(false)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
   navLinks NavLink[]
+  leads    Lead[]
+  faqs     FAQ[]
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  message   String?
+  status    String   @default("NEW") // NEW, CONTACTED, CLOSED
+  siteId    String
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Banner {
@@ -126,10 +162,40 @@ model Product {
   features    String[] // Array of feature strings
   order       Int     @default(0)
   isActive    Boolean @default(true)
+  
+  // SEO Fields
+  slug            String? // URL-friendly slug (e.g., "2024-tesla-model-3")
+  keywords        String[] // Product-specific keywords
+  metaTitle       String?
+  metaDescription String?
+  imageAlt        String? // Alt text for main image
+  
+  // Vehicle-Specific Fields (for Auto Dealers)
+  vehicleType String? // "Car", "Truck", "SUV", "Motorcycle"
+  make        String? // "Tesla", "BMW", "Toyota"
+  model       String? // "Model 3", "3 Series", "Camry"
+  year        Int?    // 2024
+  mileage     Int?    // Odometer reading
+  vin         String? // Vehicle Identification Number
+  fuelType    String? // "Electric", "Gasoline", "Diesel", "Hybrid"
+  condition   String? // "New", "Used", "Certified Pre-Owned"
+  transmission String? // "Automatic", "Manual"
+  exteriorColor String?
+  interiorColor String?
+  
+  // Bakery Product-Specific Fields
+  ingredients  String[] // ["flour", "sugar", "eggs", "butter"]
+  allergens    String[] // ["gluten", "dairy", "nuts", "eggs"]
+  servingSize  String?  // "Serves 8-10", "12 cupcakes"
+  dietaryInfo  String[] // ["vegan", "gluten-free", "sugar-free", "organic"]
+  
   site        Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
   siteId      String
   
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([siteId, slug])
 }
 
 model BusinessHour {
@@ -206,4 +272,17 @@ model NavLink {
   siteId     String
   
   createdAt DateTime @default(now())
+}
+
+model FAQ {
+  id       String @id @default(cuid())
+  question String
+  answer   String @db.Text // Use Text for longer answers
+  order    Int    @default(0)
+  isActive Boolean @default(true)
+  site     Site   @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  siteId   String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
