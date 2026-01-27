@@ -63,9 +63,14 @@ Add the following environment variables:
 - **Value:** Your PostgreSQL connection string from Step 1
 - **Environments:** ✅ Production, ✅ Preview, ✅ Development
 
+**⚠️ Important:** If your password contains special characters like `#`, `?`, `@`, or `/`, you must URL-encode them.
+- `#` becomes `%23`
+- `!` becomes `%21`
+- `@` becomes `%40`
+
 Example:
 ```
-postgresql://postgres:password@host.supabase.co:5432/postgres
+postgresql://postgres:p%23ssword@host.supabase.co:5432/postgres
 ```
 
 #### **NEXTAUTH_SECRET** (Optional, for future auth)
