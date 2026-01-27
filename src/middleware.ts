@@ -32,7 +32,11 @@ export default function middleware(req: NextRequest) {
   // BUT: In this architecture, it seems the main app is at the root, and subdomains are client sites.
   // Let's assume 'app' subdomain or root domain is the dashboard.
 
-  if (hostname === 'localhost:3000' || hostname === 'localhost:3001' || hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN) {
+  // Check if this is a Vercel deployment (production or preview)
+  const isVercelDeployment = hostname.endsWith('.vercel.app');
+  const isRootDomain = hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN;
+
+  if (hostname === 'localhost:3000' || hostname === 'localhost:3001' || isRootDomain || isVercelDeployment) {
     return NextResponse.next();
   }
 
