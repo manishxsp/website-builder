@@ -111,7 +111,7 @@ export default function CreateSitePage() {
                             placeholder="best-cars"
                         />
                         <span className="px-3 py-2 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg text-gray-500">
-                            .localhost:3000
+                            .{typeof window !== 'undefined' ? window.location.host : 'localhost:3000'}
                         </span>
                     </div>
                     <p className="mt-1 text-xs text-gray-500">Only lowercase letters, numbers, and hyphens.</p>
