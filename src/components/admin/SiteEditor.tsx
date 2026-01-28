@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface SiteEditorProps {
@@ -11,6 +11,15 @@ export default function SiteEditor({ site }: SiteEditorProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState('basic');
     const [saving, setSaving] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [host, setHost] = useState('');
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setHost(window.location.host);
+        }
+    }, []);
+
     const [formData, setFormData] = useState({
         name: site.name,
         description: site.description,
@@ -50,11 +59,69 @@ export default function SiteEditor({ site }: SiteEditorProps) {
         banners: site.banners || [],
         locations: site.locations || [],
         faqs: site.faqs || [],
+
+        // Notification
+        notificationEnabled: site.notificationEnabled || false,
+        notificationMessage: site.notificationMessage || '',
+        notificationPosition: site.notificationPosition || 'top',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const [showAIModal, setShowAIModal] = useState(false);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [aiFormData, setAiFormData] = useState({
+        businessName: '',
+        location: '',
+        existingDescription: '',
+        services: '',
+        reviews: '',
+        additionalInfo: ''
+    });
+
+    const openAIModal = () => {
+        setAiFormData({
+            businessName: formData.name,
+            location: formData.contactAddress || '',
+            existingDescription: formData.description || formData.aboutContent || '',
+            services: formData.services.map((s: any) => s.title).join(', '),
+            reviews: '',
+            additionalInfo: ''
+        });
+        setShowAIModal(true);
+    };
+
+    const handleAIGenerate = async () => {
+        setAiLoading(true);
+        try {
+            const response = await fetch('/api/ai/generate-about', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(aiFormData),
+            });
+            const data = await response.json();
+            if (data.content) {
+                const match = data.content.match(/\*\*About Us Description:\*\*\s*([\s\S]*?)(?=\*\*Character Count:|$)/);
+                if (match && match[1]) {
+                    const description = match[1].trim();
+                    setFormData(prev => ({ ...prev, aboutContent: description }));
+                    setShowAIModal(false);
+                } else {
+                    setFormData(prev => ({ ...prev, aboutContent: data.content }));
+                    setShowAIModal(false);
+                }
+            } else if (data.error) {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error('Error generating AI content:', error);
+            alert('Failed to generate content. Please check your internet connection or try again later.');
+        } finally {
+            setAiLoading(false);
+        }
     };
 
     // Helper to update list items
@@ -85,6 +152,7 @@ export default function SiteEditor({ site }: SiteEditorProps) {
 
     const tabs = [
         { id: 'basic', label: 'Basic Info', icon: '📝' },
+        { id: 'notification', label: 'Notification', icon: '🔔' },
         { id: 'faqs', label: 'FAQs', icon: '❓' },
         // Tabs are now just for scrolling or could be removed if we want a single page feel
         // For now, let's keep them but maybe we can simplify
@@ -102,7 +170,8 @@ export default function SiteEditor({ site }: SiteEditorProps) {
             });
 
             if (response.ok) {
-                alert('Site updated successfully!');
+                setShowSuccess(true);
+                setTimeout(() => setShowSuccess(false), 3000);
                 router.refresh();
             } else {
                 alert('Failed to update site');
@@ -134,7 +203,7 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                                 View Leads
                             </a>
                             <a
-                                href={`http://${site.subdomain}.localhost:3000`}
+                                href={`${typeof window !== 'undefined' ? window.location.origin : ''}/${site.subdomain}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors"
@@ -320,7 +389,16 @@ export default function SiteEditor({ site }: SiteEditorProps) {
 
                             {/* About Section */}
                             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
-                                <h3 className="text-lg font-bold mb-4 text-gray-900">About Us</h3>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-lg font-bold text-gray-900">About Us</h3>
+                                    <button
+                                        type="button"
+                                        onClick={openAIModal}
+                                        className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded hover:bg-purple-200 flex items-center gap-1"
+                                    >
+                                        <span>✨</span> Generate with AI
+                                    </button>
+                                </div>
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
@@ -879,6 +957,79 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                         </div>
                     )}
 
+                    {activeTab === 'notification' && (
+                        <form onSubmit={handleSave} className="space-y-8">
+                            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                <h3 className="text-lg font-bold mb-4 text-gray-900">Notification Banner</h3>
+                                <div className="space-y-6">
+                                    <div className="flex items-center gap-3">
+                                        <input
+                                            type="checkbox"
+                                            name="notificationEnabled"
+                                            id="notificationEnabled"
+                                            checked={formData.notificationEnabled}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, notificationEnabled: e.target.checked }))}
+                                            className="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                        />
+                                        <label htmlFor="notificationEnabled" className="font-medium text-gray-700">
+                                            Enable Notification Banner
+                                        </label>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                        <textarea
+                                            name="notificationMessage"
+                                            value={formData.notificationMessage}
+                                            onChange={handleChange}
+                                            rows={3}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                            placeholder="e.g. Special offer! Get 20% off this weekend only."
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                                        <div className="flex gap-4">
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    name="notificationPosition"
+                                                    value="top"
+                                                    checked={formData.notificationPosition === 'top'}
+                                                    onChange={handleChange}
+                                                    className="text-blue-600 focus:ring-blue-500"
+                                                />
+                                                Top of Page
+                                            </label>
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    name="notificationPosition"
+                                                    value="bottom"
+                                                    checked={formData.notificationPosition === 'bottom'}
+                                                    onChange={handleChange}
+                                                    className="text-blue-600 focus:ring-blue-500"
+                                                />
+                                                Bottom of Page
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                >
+                                    {saving ? 'Saving Changes...' : 'Save All Changes'}
+                                </button>
+                            </div>
+                        </form>
+                    )}
+
                     {activeTab === 'settings' && (
                         <div>
                             <h2 className="text-xl font-bold mb-6">Visibility Settings</h2>
@@ -907,6 +1058,108 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                     </ul>
                 </div>
             </div>
+
+            {/* AI Generation Modal */}
+            {showAIModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div className="p-6 border-b flex justify-between items-center">
+                            <h3 className="text-xl font-bold text-gray-900">Generate About Us with AI</h3>
+                            <button onClick={() => setShowAIModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+                        </div>
+                        <div className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
+                                <input
+                                    type="text"
+                                    value={aiFormData.businessName}
+                                    onChange={e => setAiFormData(prev => ({ ...prev, businessName: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                                <input
+                                    type="text"
+                                    value={aiFormData.location}
+                                    onChange={e => setAiFormData(prev => ({ ...prev, location: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    placeholder="e.g. Mumbai, Bandra"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Services / Categories</label>
+                                <input
+                                    type="text"
+                                    value={aiFormData.services}
+                                    onChange={e => setAiFormData(prev => ({ ...prev, services: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    placeholder="e.g. Restaurant, Italian, Pizza"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Existing Description (Optional)</label>
+                                <textarea
+                                    value={aiFormData.existingDescription}
+                                    onChange={e => setAiFormData(prev => ({ ...prev, existingDescription: e.target.value }))}
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Recent Reviews / Feedback (Optional)</label>
+                                <textarea
+                                    value={aiFormData.reviews}
+                                    onChange={e => setAiFormData(prev => ({ ...prev, reviews: e.target.value }))}
+                                    rows={3}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    placeholder="Paste snippets from recent positive reviews..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Info (Optional)</label>
+                                <textarea
+                                    value={aiFormData.additionalInfo}
+                                    onChange={e => setAiFormData(prev => ({ ...prev, additionalInfo: e.target.value }))}
+                                    rows={2}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                    placeholder="Any specific tone, target audience, or details to include..."
+                                />
+                            </div>
+                        </div>
+                        <div className="p-6 border-t bg-gray-50 flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowAIModal(false)}
+                                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAIGenerate}
+                                disabled={aiLoading}
+                                className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {aiLoading ? (
+                                    <>
+                                        <span className="animate-spin">↻</span> Generating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>✨</span> Generate Content
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Success Notification */}
+            {showSuccess && (
+                <div className="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 animate-fade-in-up">
+                    <span className="text-xl">✓</span>
+                    <span className="font-medium">Site updated successfully!</span>
+                </div>
+            )}
         </div>
     );
 }

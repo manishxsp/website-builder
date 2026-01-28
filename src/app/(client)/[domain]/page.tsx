@@ -83,6 +83,14 @@ export default async function ClientSite({ params }: { params: { domain: string 
         googleTagManagerId={site.googleTagManagerId}
         facebookPixelId={site.facebookPixelId}
       />
+
+      {/* Notification Banner (Top) */}
+      {site.notificationEnabled && site.notificationMessage && site.notificationPosition === 'top' && (
+        <div className="w-full px-4 py-3 text-center text-white relative z-50" style={{ backgroundColor: site.brandColor }}>
+          <p className="font-medium text-sm md:text-base">{site.notificationMessage}</p>
+        </div>
+      )}
+
       {/* Navbar */}
       {site.navLinks.length > 0 && (
         <Navbar
@@ -239,6 +247,13 @@ export default async function ClientSite({ params }: { params: { domain: string 
         categories={site.categories}
         paymentMethods={site.paymentMethods}
       />
+
+      {/* Notification Banner (Bottom) */}
+      {site.notificationEnabled && site.notificationMessage && site.notificationPosition === 'bottom' && (
+        <div className="fixed bottom-0 left-0 right-0 px-4 py-3 text-center text-white z-50 shadow-lg" style={{ backgroundColor: site.brandColor }}>
+          <p className="font-medium text-sm md:text-base">{site.notificationMessage}</p>
+        </div>
+      )}
     </main>
   );
 }

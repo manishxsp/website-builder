@@ -113,6 +113,11 @@ model Site {
   showTestimonials Boolean @default(false)
   showContact      Boolean @default(true)
   showFAQ          Boolean @default(false)
+
+  // Notification Banner
+  notificationEnabled  Boolean @default(false)
+  notificationMessage  String?
+  notificationPosition String  @default("top") // "top" or "bottom"
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
