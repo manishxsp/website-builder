@@ -67,7 +67,7 @@ export default function DashboardPage() {
                                 <div>
                                     <p className="font-medium text-gray-900">{site.name}</p>
                                     <p className="text-sm text-gray-500">
-                                        {site.customDomain || `${site.subdomain}.${currentHost}`}
+                                        {site.customDomain || `/${site.subdomain}`}
                                     </p>
                                 </div>
                                 <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">

@@ -8,67 +8,50 @@ export const config = {
      * 2. /_next (Next.js internals)
      * 3. /_static (Inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
+     * 5. /dashboard, /sites, /settings (admin routes)
      */
-    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+).*)',
+    '/((?!api|_next|_static|_vercel|dashboard|sites|settings|admin|[\\w-]+\\.\\w+).*)',
   ],
 };
 
 export default function middleware(req: NextRequest) {
   const url = req.nextUrl;
-  const hostname = req.headers.get('host') || '';
-
-  // Define your production and local domains
-  // Handle dynamic ports in development (localhost:3000, localhost:3001, etc.)
-  const isLocalhost = hostname.includes('localhost');
-  const rootDomain = process.env.NODE_ENV === 'production'
-    ? process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'your-saas-platform.vercel.app'
-    : hostname; // Use current hostname in dev to handle any port
-
   const path = url.pathname;
 
-  // 1. Handle the main dashboard and landing page
-  // If we are on the root domain (e.g. app.localhost:3000 or just localhost:3000)
-  // We want to serve the main app, not a client site
-  // BUT: In this architecture, it seems the main app is at the root, and subdomains are client sites.
-  // Let's assume 'app' subdomain or root domain is the dashboard.
-
-  // Check if this is a Vercel deployment (production or preview)
-  const isVercelDeployment = hostname.endsWith('.vercel.app');
-  const isRootDomain = hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN;
-
-  if (hostname === 'localhost:3000' || hostname === 'localhost:3001' || isRootDomain || isVercelDeployment) {
+  // Skip middleware for admin routes, API routes, and static files
+  if (
+    path.startsWith('/api') ||
+    path.startsWith('/_next') ||
+    path.startsWith('/dashboard') ||
+    path.startsWith('/sites') ||
+    path.startsWith('/settings') ||
+    path.startsWith('/admin')
+  ) {
     return NextResponse.next();
   }
 
-  // If it's the admin/dashboard app (e.g. app.localhost:3000)
-  if (hostname.startsWith('app.')) {
+  // If path is root, serve the main app
+  if (path === '/') {
     return NextResponse.next();
   }
 
-  // 2. Extract the subdomain (e.g., 'skoda-india')
-  let currentHost = hostname;
+  // For any other path like /samsung-plaza, /skoda-india, etc.
+  // Extract the brand/site slug from the path
+  const pathSegments = path.split('/').filter(Boolean);
 
-  if (process.env.NODE_ENV === 'production') {
-    const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN || 'your-saas-platform.vercel.app';
-    currentHost = hostname.replace(`.${rootDomain}`, '');
-  } else {
-    // In development, handle localhost subdomains
-    // e.g. skoda-india.localhost:3000 -> skoda-india
-    if (hostname.includes('.localhost')) {
-      currentHost = hostname.split('.localhost')[0];
-    } else if (hostname.includes('localhost')) {
-      // It's just localhost:3000, so it's the root
-      return NextResponse.next();
-    }
+  if (pathSegments.length > 0) {
+    const brandSlug = pathSegments[0];
+
+    console.log('Middleware Debug:', {
+      path,
+      brandSlug,
+      rewriteTo: `/${brandSlug}`
+    });
+
+    // Rewrite /samsung-plaza to the [domain] dynamic route
+    // This serves the client site from app/(client)/[domain]/page.tsx
+    return NextResponse.rewrite(new URL(`/${brandSlug}`, req.url));
   }
 
-  console.log('Middleware Debug:', {
-    hostname,
-    currentHost,
-    path,
-    rewriteTo: `/${currentHost}${path}`
-  });
-
-  // 3. Rewrite to the dynamic [domain] route
-  return NextResponse.rewrite(new URL(`/${currentHost}${path}`, req.url));
+  return NextResponse.next();
 }

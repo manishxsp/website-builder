@@ -68,7 +68,7 @@ export default function SitesPage() {
                     <tbody className="bg-white divide-y divide-gray-200">
                         {sites.map((site) => {
                             const siteUrl = getSiteUrl(site.subdomain, site.customDomain);
-                            const displayDomain = site.customDomain || `${site.subdomain}.${typeof window !== 'undefined' ? window.location.host : 'localhost:3000'}`;
+                            const displayDomain = site.customDomain || `/${site.subdomain}`;
 
                             return (
                                 <tr key={site.id}>

@@ -19,6 +19,7 @@ export function getBaseDomain(): string {
 
 /**
  * Generate a full site URL for a subdomain
+ * Now uses path-based routing: domain.com/brand-name
  */
 export function getSiteUrl(subdomain: string | null, customDomain?: string | null): string {
     if (customDomain) {
@@ -32,20 +33,15 @@ export function getSiteUrl(subdomain: string | null, customDomain?: string | nul
     const baseDomain = getBaseDomain();
     const protocol = baseDomain.includes('localhost') ? 'http' : 'https';
 
-    // If it's a Vercel deployment, use subdomain format
-    if (baseDomain.includes('.vercel.app')) {
-        // For Vercel, we can't use actual subdomains, so we use the rewrite pattern
-        // But for display/links, we should show the proper format
-        return `${protocol}://${subdomain}.${baseDomain}`;
-    }
-
-    return `${protocol}://${subdomain}.${baseDomain}`;
+    // Use path-based routing instead of subdomains
+    return `${protocol}://${baseDomain}/${subdomain}`;
 }
 
 /**
- * Get the domain suffix for display (e.g., ".localhost:3000" or ".yourdomain.com")
+ * Get the domain suffix for display (e.g., "/" for path-based routing)
  */
 export function getDomainSuffix(): string {
     const baseDomain = getBaseDomain();
-    return `.${baseDomain}`;
+    const protocol = baseDomain.includes('localhost') ? 'http' : 'https';
+    return `${protocol}://${baseDomain}/`;
 }
