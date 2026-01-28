@@ -16,7 +16,9 @@
     "create-user": "tsx scripts/create-user.ts",
     "change-password": "tsx scripts/change-password.ts",
     "list-users": "tsx scripts/list-users.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "clean": "rm -rf .next node_modules package-lock.json && npm install",
+    "dev:clean": "rm -rf .next && npm run dev"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
