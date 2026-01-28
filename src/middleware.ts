@@ -8,9 +8,8 @@ export const config = {
      * 2. /_next (Next.js internals)
      * 3. /_static (Inside /public)
      * 4. all root files inside /public (e.g. /favicon.ico)
-     * 5. /dashboard, /sites, /settings (admin routes)
      */
-    '/((?!api|_next|_static|_vercel|dashboard|sites|settings|admin|[\\w-]+\\.\\w+).*)',
+    '/((?!api|_next|_static|_vercel|[\\w-]+\\.\\w+).*)',
   ],
 };
 
@@ -18,20 +17,18 @@ export default function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const path = url.pathname;
 
-  // Skip middleware for admin routes, API routes, and static files
+  // Skip middleware for API routes and static files
   if (
     path.startsWith('/api') ||
-    path.startsWith('/_next') ||
-    path.startsWith('/dashboard') ||
-    path.startsWith('/sites') ||
-    path.startsWith('/settings') ||
-    path.startsWith('/admin')
+    path.startsWith('/_next')
   ) {
     return NextResponse.next();
   }
 
-  // If path is root, serve the main app
-  if (path === '/') {
+  // Public routes that don't need rewriting
+  const publicRoutes = ['/', '/login', '/signup', '/dashboard', '/sites', '/settings'];
+
+  if (publicRoutes.some(route => path.startsWith(route))) {
     return NextResponse.next();
   }
 
@@ -41,12 +38,6 @@ export default function middleware(req: NextRequest) {
 
   if (pathSegments.length > 0) {
     const brandSlug = pathSegments[0];
-
-    console.log('Middleware Debug:', {
-      path,
-      brandSlug,
-      rewriteTo: `/${brandSlug}`
-    });
 
     // Rewrite /samsung-plaza to the [domain] dynamic route
     // This serves the client site from app/(client)/[domain]/page.tsx

@@ -1,26 +1,59 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { cookies } from 'next/headers';
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
-  pages: { signIn: "/login" },
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
-      },
-      async authorize(credentials) {
-        // For development: Simple check. In production, use bcrypt to hash/compare.
-        if (credentials?.email === "admin@builder.com" && credentials?.password === "admin123") {
-          return { id: "1", name: "Admin", email: "admin@builder.com" };
-        }
-        return null;
-      }
-    })
-  ]
-};
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+
+export interface JWTPayload {
+  userId: string;
+  email: string;
+  role: string;
+}
+
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
+}
+
+export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
+  return bcrypt.compare(password, hashedPassword);
+}
+
+export function generateToken(payload: JWTPayload): string {
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+}
+
+export function verifyToken(token: string): JWTPayload | null {
+  try {
+    return jwt.verify(token, JWT_SECRET) as JWTPayload;
+  } catch (error) {
+    return null;
+  }
+}
+
+export async function setAuthCookie(token: string) {
+  const cookieStore = await cookies();
+  cookieStore.set('auth-token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: '/',
+  });
+}
+
+export async function getAuthToken(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('auth-token');
+  return token?.value || null;
+}
+
+export async function removeAuthCookie() {
+  const cookieStore = await cookies();
+  cookieStore.delete('auth-token');
+}
+
+export async function getCurrentUser(): Promise<JWTPayload | null> {
+  const token = await getAuthToken();
+  if (!token) return null;
+  return verifyToken(token);
+}
