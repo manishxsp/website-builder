@@ -203,6 +203,12 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                                 View Leads
                             </a>
                             <a
+                                href={`/sites/${site.id}/customize`}
+                                className="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-800 rounded-lg font-medium transition-colors"
+                            >
+                                🎨 Customize Brand
+                            </a>
+                            <a
                                 href={`${typeof window !== 'undefined' ? window.location.origin : ''}/${site.subdomain}`}
                                 target="_blank"
                                 rel="noopener noreferrer"

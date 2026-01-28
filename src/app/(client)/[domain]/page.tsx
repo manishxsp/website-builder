@@ -74,7 +74,10 @@ export default async function ClientSite({ params }: { params: { domain: string 
       className="min-h-screen"
       style={{
         fontFamily: site.fontFamily,
-        '--brand-color': site.brandColor
+        '--brand-color': site.brandColor,
+        '--secondary-color': site.secondaryColor || '#64748b',
+        '--accent-color': site.accentColor || '#f59e0b',
+        '--font-heading': site.fontHeading || site.fontFamily,
       } as any}
     >
       <JsonLd site={site} url={`https://${params.domain}`} />

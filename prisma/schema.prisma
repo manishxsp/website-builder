@@ -35,7 +35,18 @@ model Site {
   
   // Theme Settings
   brandColor   String   @default("#3b82f6")
+  secondaryColor String? @default("#64748b")
+  accentColor    String? @default("#f59e0b")
   fontFamily   String   @default("Inter")
+  fontHeading  String?  @default("Inter")
+  
+  // UI Customization
+  buttonStyle       String? @default("rounded-lg") // rounded-full, rounded-lg, square
+  buttonSize        String? @default("medium") // small, medium, large
+  sectionSpacing    String? @default("normal") // compact, normal, spacious
+  navbarStyle       String? @default("standard") // standard, centered, minimal
+  navbarTransparent Boolean @default(false)
+  footerStyle       String? @default("standard") // standard, minimal, multi-column
   
   // Hero Section / Carousel Banners
   heroTitle    String?
