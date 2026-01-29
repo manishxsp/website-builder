@@ -64,6 +64,20 @@ export default function SiteEditor({ site }: SiteEditorProps) {
         notificationEnabled: site.notificationEnabled || false,
         notificationMessage: site.notificationMessage || '',
         notificationPosition: site.notificationPosition || 'top',
+
+        // Section Ordering
+        heroOrder: site.heroOrder ?? 1,
+        bannersOrder: site.bannersOrder ?? 2,
+        aboutOrder: site.aboutOrder ?? 3,
+        servicesOrder: site.servicesOrder ?? 4,
+        productsOrder: site.productsOrder ?? 5,
+        businessHoursOrder: site.businessHoursOrder ?? 6,
+        tagsOrder: site.tagsOrder ?? 7,
+        locationsOrder: site.locationsOrder ?? 8,
+        galleryOrder: site.galleryOrder ?? 9,
+        testimonialsOrder: site.testimonialsOrder ?? 10,
+        faqOrder: site.faqOrder ?? 11,
+        contactOrder: site.contactOrder ?? 12,
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -152,6 +166,7 @@ export default function SiteEditor({ site }: SiteEditorProps) {
 
     const tabs = [
         { id: 'basic', label: 'Basic Info', icon: '📝' },
+        { id: 'layout', label: 'Layout', icon: '📐' },
         { id: 'notification', label: 'Notification', icon: '🔔' },
         { id: 'faqs', label: 'FAQs', icon: '❓' },
         // Tabs are now just for scrolling or could be removed if we want a single page feel
@@ -1095,6 +1110,58 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                                 </button>
                             </div>
                         </div>
+                    )}
+
+                    {activeTab === 'layout' && (
+                        <form onSubmit={handleSave} className="space-y-8">
+                            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                <h3 className="text-lg font-bold mb-4 text-gray-900">Section Ordering</h3>
+                                <p className="text-sm text-gray-600 mb-6">
+                                    Control the order in which sections appear on your site. Lower numbers appear first.
+                                </p>
+
+                                <div className="space-y-4">
+                                    {[
+                                        { key: 'heroOrder', label: 'Hero Section' },
+                                        { key: 'bannersOrder', label: 'Banners (if enabled)' },
+                                        { key: 'aboutOrder', label: 'About Us' },
+                                        { key: 'servicesOrder', label: 'Services' },
+                                        { key: 'productsOrder', label: 'Featured Products' },
+                                        { key: 'businessHoursOrder', label: 'Business Hours' },
+                                        { key: 'tagsOrder', label: 'Tags' },
+                                        { key: 'locationsOrder', label: 'Locations' },
+                                        { key: 'galleryOrder', label: 'Gallery' },
+                                        { key: 'testimonialsOrder', label: 'Testimonials' },
+                                        { key: 'faqOrder', label: 'FAQs' },
+                                        { key: 'contactOrder', label: 'Contact Us' },
+                                    ].sort((a, b) => (formData as any)[a.key] - (formData as any)[b.key]).map((section) => (
+                                        <div key={section.key} className="flex items-center justify-between bg-white p-4 rounded border border-gray-200">
+                                            <span className="font-medium text-gray-700">{section.label}</span>
+                                            <div className="flex items-center gap-2">
+                                                <label className="text-sm text-gray-500">Order:</label>
+                                                <input
+                                                    type="number"
+                                                    name={section.key}
+                                                    value={(formData as any)[section.key]}
+                                                    onChange={handleChange}
+                                                    className="w-20 px-3 py-1 border border-gray-300 rounded-lg text-center"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={saving}
+                                    className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                >
+                                    {saving ? 'Saving Changes...' : 'Save All Changes'}
+                                </button>
+                            </div>
+                        </form>
                     )}
 
                     {activeTab === 'notification' && (
