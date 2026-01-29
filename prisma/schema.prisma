@@ -142,6 +142,20 @@ model Site {
   showContact      Boolean @default(true)
   showFAQ          Boolean @default(false)
 
+  // Section Ordering
+  heroOrder           Int     @default(1)
+  bannersOrder        Int     @default(2)
+  aboutOrder          Int     @default(3)
+  servicesOrder       Int     @default(4)
+  productsOrder       Int     @default(5)
+  businessHoursOrder  Int     @default(6)
+  tagsOrder           Int     @default(7)
+  locationsOrder      Int     @default(8)
+  galleryOrder        Int     @default(9)
+  testimonialsOrder   Int     @default(10)
+  faqOrder            Int     @default(11)
+  contactOrder        Int     @default(12)
+
   // Notification Banner
   notificationEnabled  Boolean @default(false)
   notificationMessage  String?

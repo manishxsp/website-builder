@@ -104,135 +104,174 @@ export default async function ClientSite({ params }: { params: { domain: string 
         />
       )}
 
-      {/* Banner Carousel (replaces Hero if enabled) */}
-      {site.showBanners && site.banners.length > 0 && (
-        <BannerCarousel
-          banners={site.banners}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Hero Section (only if banners are not shown) */}
-      {!site.showBanners && site.showHero && site.heroTitle && (
-        <Hero
-          id="hero"
-          title={site.heroTitle}
-          subtitle={site.heroSubtitle || undefined}
-          image={site.heroImage || undefined}
-          ctaText={site.heroCTA || undefined}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* About Section */}
-      {site.showAbout && site.aboutTitle && (
-        <About
-          id="about"
-          title={site.aboutTitle}
-          content={site.aboutContent || undefined}
-          image={site.aboutImage || undefined}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Services Section */}
-      {site.showServices && site.services.length > 0 && (
-        <Services
-          id="services"
-          title={site.servicesTitle || 'Our Services'}
-          services={site.services.map((s: any) => ({
-            ...s,
-            icon: s.icon || undefined
-          }))}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Featured Products Section */}
-      {site.showProducts && site.products.length > 0 && (
-        <FeaturedProducts
-          id="products"
-          title={site.productsTitle || 'Featured Products'}
-          products={site.products}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Business Hours */}
-      {site.showBusinessHours && site.businessHours.length > 0 && (
-        <BusinessHours
-          id="hours"
-          hours={site.businessHours}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Tags */}
-      {site.tags.length > 0 && (
-        <Tags
-          id="tags"
-          title="Tags"
-          tags={site.tags}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Locations */}
-      {site.showLocations && site.locations.length > 0 && (
-        <Locations
-          id="locations"
-          title="Our Locations"
-          locations={site.locations}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Gallery Section */}
-      {site.showGallery && site.galleryImages.length > 0 && (
-        <Gallery
-          id="gallery"
-          title={site.galleryTitle || 'Gallery'}
-          images={site.galleryImages}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Testimonials Section */}
-      {site.showTestimonials && site.testimonials.length > 0 && (
-        <Testimonials
-          id="testimonials"
-          title={site.testimonialsTitle || 'Testimonials'}
-          testimonials={site.testimonials.map((t: any) => ({
-            ...t,
-            role: t.role || undefined,
-            avatar: t.avatar || undefined
-          }))}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* FAQ Section */}
-      {site.showFAQ && site.faqs.length > 0 && (
-        <FAQ
-          id="faq"
-          title="Frequently Asked Questions"
-          faqs={site.faqs}
-          brandColor={site.brandColor}
-        />
-      )}
-
-      {/* Contact Section */}
-      {site.showContact && (
-        <Contact
-          id="contact"
-          title={site.contactTitle || 'Contact Us'}
-          email={site.contactEmail || undefined}
-          phone={site.contactPhone || undefined}
-          address={site.contactAddress || undefined}
-          brandColor={site.brandColor}
-          siteId={site.id}
-        />
-      )}
+      {[
+        {
+          key: 'banners',
+          order: site.bannersOrder ?? 2,
+          component: site.showBanners && site.banners.length > 0 ? (
+            <BannerCarousel
+              key="banners"
+              banners={site.banners}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'hero',
+          order: site.heroOrder ?? 1,
+          component: !site.showBanners && site.showHero && site.heroTitle ? (
+            <Hero
+              key="hero"
+              id="hero"
+              title={site.heroTitle}
+              subtitle={site.heroSubtitle || undefined}
+              image={site.heroImage || undefined}
+              ctaText={site.heroCTA || undefined}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'about',
+          order: site.aboutOrder ?? 3,
+          component: site.showAbout && site.aboutTitle ? (
+            <About
+              key="about"
+              id="about"
+              title={site.aboutTitle}
+              content={site.aboutContent || undefined}
+              image={site.aboutImage || undefined}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'services',
+          order: site.servicesOrder ?? 4,
+          component: site.showServices && site.services.length > 0 ? (
+            <Services
+              key="services"
+              id="services"
+              title={site.servicesTitle || 'Our Services'}
+              services={site.services.map((s: any) => ({
+                ...s,
+                icon: s.icon || undefined
+              }))}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'products',
+          order: site.productsOrder ?? 5,
+          component: site.showProducts && site.products.length > 0 ? (
+            <FeaturedProducts
+              key="products"
+              id="products"
+              title={site.productsTitle || 'Featured Products'}
+              products={site.products}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'hours',
+          order: site.businessHoursOrder ?? 6,
+          component: site.showBusinessHours && site.businessHours.length > 0 ? (
+            <BusinessHours
+              key="hours"
+              id="hours"
+              hours={site.businessHours}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'tags',
+          order: site.tagsOrder ?? 7,
+          component: site.tags.length > 0 ? (
+            <Tags
+              key="tags"
+              id="tags"
+              title="Tags"
+              tags={site.tags}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'locations',
+          order: site.locationsOrder ?? 8,
+          component: site.showLocations && site.locations.length > 0 ? (
+            <Locations
+              key="locations"
+              id="locations"
+              title="Our Locations"
+              locations={site.locations}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'gallery',
+          order: site.galleryOrder ?? 9,
+          component: site.showGallery && site.galleryImages.length > 0 ? (
+            <Gallery
+              key="gallery"
+              id="gallery"
+              title={site.galleryTitle || 'Gallery'}
+              images={site.galleryImages}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'testimonials',
+          order: site.testimonialsOrder ?? 10,
+          component: site.showTestimonials && site.testimonials.length > 0 ? (
+            <Testimonials
+              key="testimonials"
+              id="testimonials"
+              title={site.testimonialsTitle || 'Testimonials'}
+              testimonials={site.testimonials.map((t: any) => ({
+                ...t,
+                role: t.role || undefined,
+                avatar: t.avatar || undefined
+              }))}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'faq',
+          order: site.faqOrder ?? 11,
+          component: site.showFAQ && site.faqs.length > 0 ? (
+            <FAQ
+              key="faq"
+              id="faq"
+              title="Frequently Asked Questions"
+              faqs={site.faqs}
+              brandColor={site.brandColor}
+            />
+          ) : null
+        },
+        {
+          key: 'contact',
+          order: site.contactOrder ?? 12,
+          component: site.showContact ? (
+            <Contact
+              key="contact"
+              id="contact"
+              title={site.contactTitle || 'Contact Us'}
+              email={site.contactEmail || undefined}
+              phone={site.contactPhone || undefined}
+              address={site.contactAddress || undefined}
+              brandColor={site.brandColor}
+              siteId={site.id}
+            />
+          ) : null
+        }
+      ].sort((a, b) => a.order - b.order).map(section => section.component)}
 
       {/* Footer */}
       <Footer
