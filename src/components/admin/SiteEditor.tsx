@@ -840,15 +840,149 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                                         Add multiple store or office locations
                                     </p>
                                 </div>
-                                <a
-                                    href={`/sites/${site.id}/locations/new`}
+                                <button
+                                    type="button"
+                                    onClick={() => addListItem('locations', {
+                                        name: '',
+                                        address: '',
+                                        city: '',
+                                        state: '',
+                                        mapLink: '',
+                                        latitude: 0,
+                                        longitude: 0,
+                                        placeId: '',
+                                        order: formData.locations.length + 1
+                                    })}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                 >
                                     + Add Location
-                                </a>
+                                </button>
                             </div>
-                            <div className="text-gray-500">
-                                Locations will be listed here. Click "Add Location" to create your first location.
+
+                            <div className="space-y-4">
+                                {formData.locations.map((location: any, index: number) => (
+                                    <div key={index} className="bg-white p-6 rounded-lg border border-gray-200 relative shadow-sm">
+                                        <button
+                                            type="button"
+                                            onClick={() => removeListItem('locations', index)}
+                                            className="absolute top-4 right-4 text-red-500 hover:text-red-700"
+                                        >
+                                            ✕
+                                        </button>
+
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Location Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={location.name}
+                                                    onChange={(e) => updateList('locations', index, 'name', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="e.g. Downtown Store"
+                                                />
+                                            </div>
+
+                                            <div className="md:col-span-2">
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                                <input
+                                                    type="text"
+                                                    value={location.address || ''}
+                                                    onChange={(e) => updateList('locations', index, 'address', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="123 Main St"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                                <input
+                                                    type="text"
+                                                    value={location.city || ''}
+                                                    onChange={(e) => updateList('locations', index, 'city', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                                                <input
+                                                    type="text"
+                                                    value={location.state || ''}
+                                                    onChange={(e) => updateList('locations', index, 'state', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Latitude</label>
+                                                <input
+                                                    type="number"
+                                                    step="any"
+                                                    value={location.latitude || ''}
+                                                    onChange={(e) => updateList('locations', index, 'latitude', parseFloat(e.target.value))}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="e.g. 37.7749"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Longitude</label>
+                                                <input
+                                                    type="number"
+                                                    step="any"
+                                                    value={location.longitude || ''}
+                                                    onChange={(e) => updateList('locations', index, 'longitude', parseFloat(e.target.value))}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="e.g. -122.4194"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Place ID (Optional)</label>
+                                                <input
+                                                    type="text"
+                                                    value={location.placeId || ''}
+                                                    onChange={(e) => updateList('locations', index, 'placeId', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Map Link (Optional)</label>
+                                                <input
+                                                    type="text"
+                                                    value={location.mapLink || ''}
+                                                    onChange={(e) => updateList('locations', index, 'mapLink', e.target.value)}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                                                    placeholder="Google Maps URL"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {formData.locations.length === 0 && (
+                                    <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                                        <p className="text-gray-500">No locations added yet.</p>
+                                        <button
+                                            type="button"
+                                            onClick={() => addListItem('locations', { name: '', order: 1 })}
+                                            className="mt-2 text-blue-600 hover:underline"
+                                        >
+                                            Add your first location
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div className="flex justify-end pt-6 border-t mt-6">
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={saving}
+                                        className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                    >
+                                        {saving ? 'Saving Changes...' : 'Save All Changes'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}

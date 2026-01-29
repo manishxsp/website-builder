@@ -251,6 +251,9 @@ model Location {
   state       String?
   address     String?
   mapLink     String?
+  latitude    Float?
+  longitude   Float?
+  placeId     String?
   order       Int     @default(0)
   site        Site    @relation(fields: [siteId], references: [id], onDelete: Cascade)
   siteId      String

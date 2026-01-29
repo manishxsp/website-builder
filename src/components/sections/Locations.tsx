@@ -5,6 +5,9 @@ interface Location {
     state?: string | null;
     address?: string | null;
     mapLink?: string | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    placeId?: string | null;
     order: number;
 }
 
@@ -14,6 +17,8 @@ interface LocationsProps {
     locations: Location[];
     brandColor: string;
 }
+
+import Map from '../ui/Map';
 
 export default function Locations({ id, title = "Our Locations", locations, brandColor }: LocationsProps) {
     if (locations.length === 0) return null;
@@ -32,7 +37,7 @@ export default function Locations({ id, title = "Our Locations", locations, bran
                     {locations.map((location) => (
                         <div
                             key={location.id}
-                            className="p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-shadow"
+                            className="p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-shadow flex flex-col"
                         >
                             <h4 className="font-bold text-lg mb-2" style={{ color: brandColor }}>
                                 {location.name}
@@ -48,21 +53,34 @@ export default function Locations({ id, title = "Our Locations", locations, bran
                                 </p>
                             )}
 
-                            {location.mapLink && (
-                                <a
-                                    href={location.mapLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-sm font-medium hover:underline"
-                                    style={{ color: brandColor }}
-                                >
-                                    <svg className="w-4 h-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    Get Directions
-                                </a>
+                            {location.latitude && location.longitude && (
+                                <div className="mb-4 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                                    <Map
+                                        latitude={location.latitude}
+                                        longitude={location.longitude}
+                                        popupText={location.name}
+                                        height="200px"
+                                    />
+                                </div>
                             )}
+
+                            <div className="mt-auto">
+                                {location.mapLink && (
+                                    <a
+                                        href={location.mapLink}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-sm font-medium hover:underline"
+                                        style={{ color: brandColor }}
+                                    >
+                                        <svg className="w-4 h-4" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                            <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        Get Directions
+                                    </a>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
