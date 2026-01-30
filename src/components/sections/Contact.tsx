@@ -10,16 +10,46 @@ interface ContactProps {
   address?: string;
   brandColor: string;
   siteId: string;
+  showFormName?: boolean;
+  showFormEmail?: boolean;
+  showFormPhone?: boolean;
+  showFormOTP?: boolean;
+  showFormMessage?: boolean;
 }
 
-export default function Contact({ id, title, email, phone, address, brandColor, siteId }: ContactProps) {
+export default function Contact({
+  id,
+  title,
+  email,
+  phone,
+  address,
+  brandColor,
+  siteId,
+  showFormName = true,
+  showFormEmail = true,
+  showFormPhone = false,
+  showFormOTP = false,
+  showFormMessage = true
+}: ContactProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
+    otp: '',
     message: ''
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [otpSent, setOtpSent] = useState(false);
+
+  const handleSendOTP = async () => {
+    // Mock OTP logic for now
+    if (!formData.phone) {
+      alert("Please enter phone number first");
+      return;
+    }
+    setOtpSent(true);
+    alert(`OTP sent to ${formData.phone} (Mock)`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +65,8 @@ export default function Contact({ id, title, email, phone, address, brandColor, 
       if (!res.ok) throw new Error('Failed to submit');
 
       setStatus('success');
-      setFormData({ name: '', email: '', phone: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', otp: '', message: '' });
+      setOtpSent(false);
       setTimeout(() => setStatus('idle'), 3000);
     } catch (error) {
       setStatus('error');
@@ -111,49 +142,90 @@ export default function Contact({ id, title, email, phone, address, brandColor, 
 
           {/* Contact Form */}
           <form onSubmit={handleSubmit} className="space-y-5 animate-slide-up animation-delay-200">
-            <input
-              type="text"
-              placeholder="Your Name"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-opacity-50 transition-all"
-              style={{
-                '--focus-border-color': brandColor,
-                borderColor: 'rgb(229, 231, 235)'
-              } as any}
-              onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
-            />
-            <input
-              type="tel"
-              placeholder="Your Phone Number"
-              value={(formData as any).phone || ''}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value } as any)}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none transition-all"
-              onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
-            />
-            <input
-              type="email"
-              placeholder="Your Email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none transition-all"
-              onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
-            />
-            <textarea
-              placeholder="Your Message"
-              rows={5}
-              required
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none transition-all resize-none"
-              onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
-            />
+            {showFormName && (
+              <input
+                type="text"
+                placeholder="Your Name"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-opacity-50 transition-all"
+                style={{
+                  '--focus-border-color': brandColor,
+                  borderColor: 'rgb(229, 231, 235)'
+                } as any}
+                onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
+              />
+            )}
+
+            {showFormPhone && (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="tel"
+                    placeholder="Your Phone Number"
+                    required={showFormOTP || !showFormEmail}
+                    value={(formData as any).phone || ''}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value } as any)}
+                    className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none transition-all"
+                    onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
+                    onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
+                  />
+                  {showFormOTP && (
+                    <button
+                      type="button"
+                      onClick={handleSendOTP}
+                      className="px-6 py-2 rounded-lg text-white whitespace-nowrap"
+                      style={{ backgroundColor: brandColor }}
+                    >
+                      {otpSent ? 'Resend' : 'Send OTP'}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {showFormOTP && otpSent && (
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                required
+                maxLength={6}
+                value={(formData as any).otp || ''}
+                onChange={(e) => setFormData({ ...formData, otp: e.target.value } as any)}
+                className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none transition-all"
+                onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
+              />
+            )}
+
+            {showFormEmail && (
+              <input
+                type="email"
+                placeholder="Your Email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none transition-all"
+                onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
+              />
+            )}
+
+            {showFormMessage && (
+              <textarea
+                placeholder="Your Message"
+                rows={5}
+                required={!showFormOTP}
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                className="w-full p-4 border-2 border-gray-200 rounded-lg focus:outline-none transition-all resize-none"
+                onFocus={(e) => e.currentTarget.style.borderColor = brandColor}
+                onBlur={(e) => e.currentTarget.style.borderColor = 'rgb(229, 231, 235)'}
+              />
+            )}
+
             <button
               type="submit"
               disabled={status === 'loading' || status === 'success'}

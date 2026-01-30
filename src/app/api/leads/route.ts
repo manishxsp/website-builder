@@ -6,9 +6,9 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { name, email, phone, message, siteId } = body;
 
-        if (!siteId || !name) {
+        if (!siteId) {
             return NextResponse.json(
-                { error: 'Missing required fields' },
+                { error: 'Missing site ID' },
                 { status: 400 }
             );
         }

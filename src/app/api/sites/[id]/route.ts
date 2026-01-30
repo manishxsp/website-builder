@@ -54,6 +54,19 @@ export async function PATCH(
       ...siteData
     } = body;
 
+    // Ensure order fields are integers
+    const intFields = [
+      'heroOrder', 'bannersOrder', 'aboutOrder', 'servicesOrder',
+      'productsOrder', 'businessHoursOrder', 'tagsOrder', 'locationsOrder',
+      'galleryOrder', 'testimonialsOrder', 'faqOrder', 'contactOrder'
+    ];
+
+    intFields.forEach(field => {
+      if (siteData[field] !== undefined) {
+        siteData[field] = parseInt(siteData[field] as string, 10);
+      }
+    });
+
     // Prepare nested writes if arrays are provided
     const updateData: any = { ...siteData };
 

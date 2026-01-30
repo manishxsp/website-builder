@@ -59,11 +59,29 @@ export default function SiteEditor({ site }: SiteEditorProps) {
         banners: site.banners || [],
         locations: site.locations || [],
         faqs: site.faqs || [],
+        galleryImages: site.galleryImages || [],
 
         // Notification
         notificationEnabled: site.notificationEnabled || false,
         notificationMessage: site.notificationMessage || '',
         notificationPosition: site.notificationPosition || 'top',
+
+        // Visibility Settings
+        showHero: site.showHero ?? true,
+        showBanners: site.showBanners ?? false,
+        showAbout: site.showAbout ?? true,
+        showServices: site.showServices ?? true,
+        showGallery: site.showGallery ?? false,
+        showTestimonials: site.showTestimonials ?? false,
+        showContact: site.showContact ?? true,
+        showFAQ: site.showFAQ ?? false,
+
+        // Lead Form Configuration
+        showFormName: site.showFormName ?? true,
+        showFormEmail: site.showFormEmail ?? true,
+        showFormPhone: site.showFormPhone ?? false,
+        showFormOTP: site.showFormOTP ?? false,
+        showFormMessage: site.showFormMessage ?? true,
 
         // Section Ordering
         heroOrder: site.heroOrder ?? 1,
@@ -164,11 +182,37 @@ export default function SiteEditor({ site }: SiteEditorProps) {
         });
     };
 
+    // Provide simple helper for string arrays (like gallery images)
+    const updateStringList = (listName: string, index: number, value: string) => {
+        setFormData(prev => {
+            const list = [...(prev as any)[listName]];
+            list[index] = value;
+            return { ...prev, [listName]: list };
+        });
+    }
+
+    const addStringItem = (listName: string, value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [listName]: [...(prev as any)[listName], value]
+        }));
+    }
+
+    const removeStringItem = (listName: string, index: number) => {
+        setFormData(prev => {
+            const list = [...(prev as any)[listName]];
+            list.splice(index, 1);
+            return { ...prev, [listName]: list };
+        });
+    }
+
     const tabs = [
         { id: 'basic', label: 'Basic Info', icon: '📝' },
         { id: 'layout', label: 'Layout', icon: '📐' },
         { id: 'notification', label: 'Notification', icon: '🔔' },
+        { id: 'gallery', label: 'Gallery', icon: '🖼️' },
         { id: 'faqs', label: 'FAQs', icon: '❓' },
+        { id: 'settings', label: 'Settings', icon: '⚙️' },
         // Tabs are now just for scrolling or could be removed if we want a single page feel
         // For now, let's keep them but maybe we can simplify
     ];
@@ -737,6 +781,60 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                                 </div>
                             </div>
 
+                            {/* Lead Form Configuration */}
+                            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                                <h3 className="text-lg font-bold mb-4 text-gray-900">Lead Form Configuration</h3>
+                                <div className="space-y-4">
+                                    {/* Preset Select */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Form Preset</label>
+                                        <select
+                                            onChange={(e) => {
+                                                const preset = e.target.value;
+                                                if (preset === 'simple') {
+                                                    setFormData(prev => ({ ...prev, showFormName: true, showFormEmail: true, showFormPhone: false, showFormOTP: false, showFormMessage: true }));
+                                                } else if (preset === 'phone') {
+                                                    setFormData(prev => ({ ...prev, showFormName: true, showFormEmail: false, showFormPhone: true, showFormOTP: false, showFormMessage: true }));
+                                                } else if (preset === 'verified') {
+                                                    setFormData(prev => ({ ...prev, showFormName: true, showFormEmail: false, showFormPhone: true, showFormOTP: true, showFormMessage: true }));
+                                                } else if (preset === 'full') {
+                                                    setFormData(prev => ({ ...prev, showFormName: true, showFormEmail: true, showFormPhone: true, showFormOTP: false, showFormMessage: true }));
+                                                }
+                                            }}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                                        >
+                                            <option value="">Select a Preset...</option>
+                                            <option value="simple">Simple (Name + Email + Message)</option>
+                                            <option value="phone">Phone Only (Name + Phone + Message)</option>
+                                            <option value="verified">Verified Phone (Name + Phone + OTP + Message)</option>
+                                            <option value="full">Full Contact (Name + Email + Phone + Message)</option>
+                                        </select>
+                                    </div>
+                                    <div className="grid md:grid-cols-2 gap-4">
+                                        {[
+                                            { key: 'showFormName', label: 'Show Name Field' },
+                                            { key: 'showFormEmail', label: 'Show Email Field' },
+                                            { key: 'showFormPhone', label: 'Show Phone Field' },
+                                            { key: 'showFormOTP', label: 'Require OTP Verification' },
+                                            { key: 'showFormMessage', label: 'Show Message Field' }
+                                        ].map((setting) => (
+                                            <div key={setting.key} className="flex items-center gap-3 bg-white p-3 rounded border border-gray-200">
+                                                <input
+                                                    type="checkbox"
+                                                    id={setting.key}
+                                                    checked={(formData as any)[setting.key]}
+                                                    onChange={(e) => setFormData(prev => ({ ...prev, [setting.key]: e.target.checked }))}
+                                                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                                />
+                                                <label htmlFor={setting.key} className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                                                    {setting.label}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Social Media */}
                             <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
                                 <h3 className="text-lg font-bold mb-4 text-gray-900">Social Media</h3>
@@ -1011,15 +1109,102 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                                         Add tags for products, services, or categories
                                     </p>
                                 </div>
-                                <a
-                                    href={`/sites/${site.id}/tags/new`}
+                                <button
+                                    type="button"
+                                    onClick={() => addListItem('tags', { name: '', link: '', order: formData.tags.length + 1 })}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                                 >
                                     + Add Tag
-                                </a>
+                                </button>
                             </div>
-                            <div className="text-gray-500">
-                                Tags will be listed here. Click "Add Tag" to create your first tag.
+                            <div className="flex flex-wrap gap-2">
+                                {formData.tags.map((tag: any, index: number) => (
+                                    <div key={index} className="flex items-center gap-2 bg-white px-3 py-2 rounded-full border border-gray-200 shadow-sm">
+                                        <input
+                                            type="text"
+                                            value={tag.name}
+                                            onChange={(e) => updateList('tags', index, 'name', e.target.value)}
+                                            className="w-24 bg-transparent border-none focus:ring-0 p-0 text-sm font-medium"
+                                            placeholder="Tag Name"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={tag.link || ''}
+                                            onChange={(e) => updateList('tags', index, 'link', e.target.value)}
+                                            className="w-24 bg-gray-50 border-none rounded px-2 py-0.5 text-xs text-gray-500"
+                                            placeholder="Link (opt)"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeListItem('tags', index)}
+                                            className="text-gray-400 hover:text-red-500 text-xs"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {activeTab === 'gallery' && (
+                        <div>
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h2 className="text-xl font-bold">Image Gallery</h2>
+                                    <p className="text-gray-600 mt-1">
+                                        Add photos to your gallery (URLs only for now)
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => addStringItem('galleryImages', '')}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                    + Add Image
+                                </button>
+                            </div>
+                            <div className="space-y-4">
+                                {formData.galleryImages.map((image: string, index: number) => (
+                                    <div key={index} className="flex items-center gap-3 bg-white p-4 rounded border border-gray-200">
+                                        <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
+                                            {image ? (
+                                                <img src={image} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span className="text-2xl">🖼️</span>
+                                            )}
+                                        </div>
+                                        <div className="flex-1">
+                                            <input
+                                                type="url"
+                                                value={image}
+                                                onChange={(e) => updateStringList('galleryImages', index, e.target.value)}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded"
+                                                placeholder="https://example.com/image.jpg"
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeStringItem('galleryImages', index)}
+                                            className="text-red-500 hover:text-red-700 px-2"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                ))}
+                                {formData.galleryImages.length === 0 && (
+                                    <p className="text-gray-500 text-sm italic text-center py-4">No images added yet.</p>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end pt-6 border-t mt-6">
+                                <button
+                                    onClick={handleSave}
+                                    disabled={saving}
+                                    className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                >
+                                    {saving ? 'Saving Changes...' : 'Save All Changes'}
+                                </button>
                             </div>
                         </div>
                     )}
@@ -1243,12 +1428,46 @@ export default function SiteEditor({ site }: SiteEditorProps) {
                             <p className="text-gray-600 mb-6">
                                 Toggle which sections appear on your site
                             </p>
-                            <a
-                                href={`/sites/${site.id}/settings`}
-                                className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                            >
-                                Manage Settings
-                            </a>
+                            <form onSubmit={handleSave} className="space-y-6">
+                                <div className="grid md:grid-cols-2 gap-4">
+                                    {[
+                                        { key: 'showHero', label: 'Show Hero Section' },
+                                        { key: 'showBanners', label: 'Show Banner Carousel' },
+                                        { key: 'showAbout', label: 'Show About Us' },
+                                        { key: 'showServices', label: 'Show Services' },
+                                        { key: 'showProducts', label: 'Show Featured Products' },
+                                        { key: 'showBusinessHours', label: 'Show Business Hours' },
+                                        { key: 'showLocations', label: 'Show Locations' },
+                                        { key: 'showGallery', label: 'Show Gallery' },
+                                        { key: 'showTestimonials', label: 'Show Testimonials' },
+                                        { key: 'showFAQ', label: 'Show FAQs' },
+                                        { key: 'showContact', label: 'Show Contact Section' },
+                                    ].map((setting) => (
+                                        <div key={setting.key} className="flex items-center gap-3 bg-white p-4 rounded border border-gray-200">
+                                            <input
+                                                type="checkbox"
+                                                id={setting.key}
+                                                checked={(formData as any)[setting.key]}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, [setting.key]: e.target.checked }))}
+                                                className="h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                            />
+                                            <label htmlFor={setting.key} className="font-medium text-gray-700 cursor-pointer select-none">
+                                                {setting.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <button
+                                        type="submit"
+                                        disabled={saving}
+                                        className="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                                    >
+                                        {saving ? 'Saving Changes...' : 'Save All Changes'}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     )}
                 </div>

@@ -268,6 +268,11 @@ export default async function ClientSite({ params }: { params: { domain: string 
               address={site.contactAddress || undefined}
               brandColor={site.brandColor}
               siteId={site.id}
+              showFormName={site.showFormName}
+              showFormEmail={site.showFormEmail}
+              showFormPhone={site.showFormPhone}
+              showFormOTP={site.showFormOTP}
+              showFormMessage={site.showFormMessage}
             />
           ) : null
         }

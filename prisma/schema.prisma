@@ -88,6 +88,13 @@ model Site {
   contactPhone   String?
   contactAddress String?
   
+  // Lead Form Configuration
+  showFormName      Boolean @default(true)
+  showFormEmail     Boolean @default(true)
+  showFormPhone     Boolean @default(false)
+  showFormOTP       Boolean @default(false)
+  showFormMessage   Boolean @default(true)
+  
   // Location/Stores
   showLocations Boolean   @default(false)
   locations     Location[]
@@ -172,7 +179,7 @@ model Site {
 
 model Lead {
   id        String   @id @default(cuid())
-  name      String
+  name      String?
   email     String?
   phone     String?
   message   String?
